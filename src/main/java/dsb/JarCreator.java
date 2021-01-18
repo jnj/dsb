@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -21,11 +24,22 @@ class JarCreator {
         this.outputDir = outputDir;
     }
 
-    void create() throws IOException {
+    void create(String mainClass) throws IOException {
         final var manifest = new Manifest();
+        final var classFiles = RecursiveFileLocator.locate(outputDir.toString(), CLASS_EXT);
+        final var attributes = manifest.getMainAttributes();
+
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        attributes.put(new Attributes.Name("Created-By"), "dsb");
+
+        if (mainClass != null) {
+            attributes.put(Attributes.Name.MAIN_CLASS, mainClass);
+        }
+
         try (var fos = new FileOutputStream(outputDir.toString() + File.separator + name + JAR_EXT);
              var jar = new JarOutputStream(fos, manifest)) {
-            RecursiveFileLocator.locate(outputDir.toString(), CLASS_EXT).forEach(classFile -> {
+
+            classFiles.forEach(classFile -> {
                 var relPath = classFile.getPath();
                 var index = relPath.indexOf(outputDir.toString());
                 relPath = relPath.substring(index + outputDir.toString().length() + 1);

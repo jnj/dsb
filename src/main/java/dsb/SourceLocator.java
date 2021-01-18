@@ -19,11 +19,14 @@ class SourceLocator {
         this.rootDir = new File(rootDir);
     }
 
-    void locate() {
+    void locateOr(Runnable whenSourcesFound) {
         RecursiveFileLocator.locate(rootDir.getPath(), JAVA_EXT)
                 .stream()
                 .filter(f -> mainSourcePrefixes.stream().anyMatch(p -> f.getPath().contains(p)))
                 .forEach(mainSourceFiles::add);
+        if (whenSourcesFound != null && mainSourceFiles.isEmpty()) {
+            whenSourcesFound.run();
+        }
     }
 
     List<File> getMainSources() {

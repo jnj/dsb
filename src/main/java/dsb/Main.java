@@ -1,20 +1,8 @@
 package dsb;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.ToolProvider;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -25,11 +13,17 @@ public class Main {
         String cwd = System.getProperty("user.dir");
         final Path outDir = createOutDir(cwd);
         final var sourceLocator = new SourceLocator(cwd);
-        sourceLocator.locate();
-        final var compiler = new Compiler(sourceLocator, outDir);
+
+        sourceLocator.locateOr(() -> {
+            System.err.println("No sources found.");
+            System.exit(0);
+        });
+
+        final var compiler = new Compiler(sourceLocator.getMainSources(), outDir);
         compiler.compile();
-        final var jar = new JarCreator(new File(cwd).getName(), outDir);
-        jar.create();
+        final var projectName = new File(cwd).getName();
+        final var jar = new JarCreator(projectName, outDir);
+        jar.create("dsb.Main");
     }
 
     private static Path createOutDir(String cwd) {
@@ -42,4 +36,3 @@ public class Main {
         return outDir;
     }
 }
-

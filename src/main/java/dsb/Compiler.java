@@ -4,6 +4,7 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -12,11 +13,11 @@ import java.util.Objects;
 class Compiler {
 
     private final JavaCompiler javaCompiler;
-    private final SourceLocator locator;
+    private final Iterable<File> sources;
     private final Path outDir;
 
-    public Compiler(SourceLocator locator, Path outDir) {
-        this.locator = locator;
+    public Compiler(Iterable<File> sources, Path outDir) {
+        this.sources = sources;
         this.outDir = outDir;
         this.javaCompiler = ToolProvider.getSystemJavaCompiler();
         Objects.requireNonNull(javaCompiler, "No system java compiler found.");
@@ -26,7 +27,7 @@ class Compiler {
         final var diagCollector = new DiagnosticCollector<JavaFileObject>();
 
         try (var fileManager = javaCompiler.getStandardFileManager(diagCollector, null, null)) {
-            final var javaFiles = fileManager.getJavaFileObjectsFromFiles(locator.getMainSources());
+            final var javaFiles = fileManager.getJavaFileObjectsFromFiles(sources);
             final var options = List.of(
                     "-d", outDir.toString(),
                     "-g"
