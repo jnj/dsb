@@ -1,0 +1,13 @@
+# Declare a target for a jar file. We use the keyword "target", followed by a period, then the name
+# of the target. The value is the path of the jar file to build.
+target.a.jar=target/liba.jar
+
+# We declare another target, which will result in another jar file.
+target.b.jar=target/libb.jar
+
+# We inform dsb that this target will depend on the 'a' target. You can use a comma-delimited
+# list to specify more than one dependency.
+target.b.deps=a
+
+# We tell dsb that the default target is "b".
+target.default=b

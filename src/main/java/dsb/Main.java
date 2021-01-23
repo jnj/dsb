@@ -6,11 +6,16 @@ import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        try (var props = Thread.currentThread().getContextClassLoader().getResourceAsStream("dsb.properties")) {
-//            new Properties()
-//        }
+        final var argParser = new ArgParser();
+        argParser.parse(args);
 
-        String cwd = System.getProperty("user.dir");
+        final var cfg = argParser.hasConfigPath() ?
+                Config.fromFile(argParser.getConfigFilePath()) :
+                Config.createDefault();
+
+        cfg.report();
+
+        final var cwd = System.getProperty("user.dir");
         final Path outDir = createOutDir(cwd);
         final var sourceLocator = new SourceLocator(cwd);
 
@@ -23,7 +28,7 @@ public class Main {
         compiler.compile();
         final var projectName = new File(cwd).getName();
         final var jar = new JarCreator(projectName, outDir);
-        jar.create("dsb.Main");
+        jar.create(argParser.getMainClass());
     }
 
     private static Path createOutDir(String cwd) {

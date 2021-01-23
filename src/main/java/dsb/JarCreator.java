@@ -24,7 +24,7 @@ class JarCreator {
         this.outputDir = outputDir;
     }
 
-    void create(String mainClass) throws IOException {
+    void create(String fullyQualifiedMainClass) throws IOException {
         final var manifest = new Manifest();
         final var classFiles = RecursiveFileLocator.locate(outputDir.toString(), CLASS_EXT);
         final var attributes = manifest.getMainAttributes();
@@ -32,8 +32,8 @@ class JarCreator {
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attributes.put(new Attributes.Name("Created-By"), "dsb");
 
-        if (mainClass != null) {
-            attributes.put(Attributes.Name.MAIN_CLASS, mainClass);
+        if (fullyQualifiedMainClass != null) {
+            attributes.put(Attributes.Name.MAIN_CLASS, fullyQualifiedMainClass);
         }
 
         try (var fos = new FileOutputStream(outputDir.toString() + File.separator + name + JAR_EXT);
