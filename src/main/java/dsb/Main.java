@@ -1,11 +1,7 @@
 package dsb;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         final var argParser = new ArgParser();
         argParser.parse(args);
 
@@ -15,29 +11,10 @@ public class Main {
 
         cfg.report();
 
-        final var cwd = System.getProperty("user.dir");
-        final Path outDir = createOutDir(cwd);
-        final var sourceLocator = new SourceLocator(cwd);
+        final var graph = new DefaultGraph();
+        final var targetExecutor = new DefaultTargetExecutor(argParser);
+        final var graphExecutor = new GraphExecutor(graph.getGraph(), targetExecutor);
 
-        sourceLocator.locateOr(() -> {
-            System.err.println("No sources found.");
-            System.exit(0);
-        });
-
-        final var compiler = new Compiler(sourceLocator.getMainSources(), outDir);
-        compiler.compile();
-        final var projectName = new File(cwd).getName();
-        final var jar = new JarCreator(projectName, outDir);
-        jar.create(argParser.getMainClass());
-    }
-
-    private static Path createOutDir(String cwd) {
-        final var cwdFile = new File(cwd);
-        final var outDir = Path.of(cwdFile.getPath(), "target");
-        final var outDirFile = outDir.toFile();
-        if (outDirFile.exists()) {
-            outDirFile.mkdir();
-        }
-        return outDir;
+        graphExecutor.execute(TargetName.AssembleJarFile.name());
     }
 }

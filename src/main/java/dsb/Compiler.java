@@ -24,6 +24,7 @@ class Compiler {
     }
 
     void compile() {
+        System.out.println("Compiling " + sources);
         final var diagCollector = new DiagnosticCollector<JavaFileObject>();
 
         try (var fileManager = javaCompiler.getStandardFileManager(diagCollector, null, null)) {

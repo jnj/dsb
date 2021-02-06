@@ -12,10 +12,26 @@ public class Graph {
         findOrAddTarget(defaultName);
     }
 
+    public void addDeps(TargetName tgt, Collection<TargetName> deps) {
+        deps.forEach(d -> addDep(tgt, d));
+    }
+
+    public void addDep(TargetName name, TargetName dep) {
+        addDep(name.name(), dep.name());
+    }
+
     public void addDep(String targetName, String dep) {
         final var t = findOrAddTarget(targetName);
         final var list = deps.computeIfAbsent(t, k -> new ArrayList<>());
         list.add(findOrAddTarget(dep));
+    }
+
+    /**
+     * Returns this target's dependencies, i.e. targets that need
+     * to be satisfied first.
+     */
+    public Collection<Target> getDependencies(Target target) {
+        return new ArrayList<>(deps.get(target));
     }
 
     private Target findOrAddTarget(String name) {
@@ -29,29 +45,4 @@ public class Graph {
         return "Graph{" + deps + "}";
     }
 
-    private static class Target {
-        public final String name;
-
-        Target(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            final var target = (Target) o;
-            return name.equals(target.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name);
-        }
-    }
 }
