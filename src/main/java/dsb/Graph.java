@@ -31,7 +31,7 @@ public class Graph {
      * to be satisfied first.
      */
     public Collection<Target> getDependencies(Target target) {
-        return new ArrayList<>(deps.get(target));
+        return new ArrayList<>(deps.computeIfAbsent(target, t -> new ArrayList<>()));
     }
 
     private Target findOrAddTarget(String name) {

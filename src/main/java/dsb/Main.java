@@ -15,6 +15,6 @@ public class Main {
         final var targetExecutor = new DefaultTargetExecutor(argParser);
         final var graphExecutor = new GraphExecutor(graph.getGraph(), targetExecutor);
 
-        graphExecutor.execute(TargetName.AssembleJarFile.name());
+        graphExecutor.execute(argParser.getTarget());
     }
 }

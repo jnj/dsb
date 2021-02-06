@@ -2,6 +2,7 @@ package dsb;
 
 public class ArgParser {
 
+    private String target = TargetName.AssembleJarFile.name();
     private String configFilePath;
     private String mainClass;
     private int argIndex;
@@ -18,6 +19,9 @@ public class ArgParser {
             } else if ("-m".equals(arg)) {
                 mainClass = consumeNext(args);
                 failIfNull(mainClass);
+            } else if ("-t".equals(arg)) {
+                target = consumeNext(args);
+                failIfNull(target);
             }
         }
     }
@@ -32,6 +36,10 @@ public class ArgParser {
     private String consumeNext(String[] s) {
         if (argIndex < s.length - 1) {
             var arg = s[argIndex + 1];
+            arg = arg.trim();
+            if (arg.isEmpty()) {
+                arg = null;
+            }
             argIndex++;
             return arg;
         }
@@ -58,12 +66,17 @@ public class ArgParser {
         return configFilePath;
     }
 
+    String getTarget() {
+        return target;
+    }
+
     public void usage() {
         var help = "Command line options:\n" +
                    "---------------------\n" +
                    " -c <config file> pass in a config file to direct the build\n" +
                    " -h print usage\n" +
-                   " -m <fully.qualified.Main> pass name of class with main() to get an executable jar";
+                   " -m <fully.qualified.Main> pass name of class with main() to get an executable jar\n" +
+                   " -t target name (default is " + TargetName.AssembleJarFile + ")";
         System.out.println(help);
     }
 }
